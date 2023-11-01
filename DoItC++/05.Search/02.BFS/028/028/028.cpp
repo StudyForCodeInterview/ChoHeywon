@@ -2,8 +2,10 @@
 #include <stdio.h>
 #include <vector>
 #include <queue>
+#include <memory.h>
 using namespace std;
 
+struct Edge;
 struct Vertex
 {
     int _idx;
@@ -17,35 +19,43 @@ struct Edge
     int _dist;
 };
 
-void BFS(char* visited, Vertex* vertex)
-{
-    visited[vertex->_idx - 1] = 1;
-    queue<Node*> Q;
-    Q.push(node);
+int dists[100000];
+Vertex vertexs[100000];
+char visited[100000];
 
+int BFS (char* visited, Vertex* v, int V)
+{
+    visited[v->_idx] = 1;    
+    memset(dists, 0, sizeof(int) * V);
+    queue<Vertex*> Q;
+    Q.push(v);
+
+    int max = 0;
     while (!Q.empty())
     {
-        Node* frontNode = Q.front();
-        printf("%d ", frontNode->_num);
+        Vertex* front = Q.front();     
         Q.pop();
 
-        vector<Node*>::iterator it = frontNode->_connected.begin();
-        for (; it < frontNode->_connected.end(); it++)
+        for (int i= 0; i < front->_edges.size(); i++)
         {
-            if (visited[(*it)->_num - 1] != 1)
+            Edge* e = front->_edges[i];
+            if (visited[e->_v->_idx] != 1)
             {
-                visited[(*it)->_num - 1] = 1;
-                Q.push((*it));
-            }
+                visited[e->_v->_idx] = 1;          
+                dists[e->_v->_idx] = e->_dist;
+                dists[e->_v->_idx] += dists[front->_idx]; 
+                if (dists[e->_v->_idx] > max) max = dists[e->_v->_idx];
+                Q.push(e->_v);
+            }         
         }
     }
+    return max;
 }
 
 int main()
 {
     int V;
     scanf("%d", &V);
-    Vertex* vertexs = new Vertex[V];
 
     for (int i = 0; i < V; i++)
     {
@@ -64,6 +74,19 @@ int main()
 
             Edge* e = new Edge(&vertexs[u_idx - 1], dist);
             v->_edges.push_back(e);
-        }    
+        }   
     }
+
+    memset(visited, 0, V);
+    BFS(visited, &vertexs[0], V);
+
+    int max = 0;
+    for (int i = 1; i < V; i++)
+    {
+        if (dists[i] > dists[max]) max = i;
+    }
+
+    memset(visited, 0, V);
+    int result = BFS(visited, &vertexs[max], V);
+    ::printf("%d", result);
 }
