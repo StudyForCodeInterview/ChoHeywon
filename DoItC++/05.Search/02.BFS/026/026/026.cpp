@@ -7,6 +7,9 @@ using namespace std;
 
 struct Node
 {
+    bool operator <(Node& other) {
+        return _num < other._num;
+    }
     int _num = 0;
     vector<Node*> _connected;
 };
@@ -14,21 +17,40 @@ struct Node
 void DFS(char* visited, Node* node)
 {
     printf("%d ", node->_num);
-    visited[node->_num] = 1;
+    visited[node->_num - 1] = 1;
 
     vector<Node*>::iterator it = node->_connected.begin();
     for (; it < node->_connected.end(); it++)
     {
-        if (visited[(*it)->_num] == 0)
+        if (visited[(*it)->_num - 1] != 1)
         {
             DFS(visited, *it);
         }
     }
 }
 
-void BFS(Node* node)
+void BFS(char* visited, Node* node)
 {
+    visited[node->_num - 1] = 1;
+    queue<Node*> Q;
+    Q.push(node);
 
+    while (!Q.empty()) 
+    {
+        Node* frontNode = Q.front();
+        printf("%d ", frontNode->_num);
+        Q.pop();
+
+        vector<Node*>::iterator it = frontNode->_connected.begin();
+        for (; it < frontNode->_connected.end(); it++)
+        {
+            if (visited[(*it)->_num - 1] != 1)
+            {
+                visited[(*it)->_num - 1] = 1;
+                Q.push((*it));
+            }
+        }
+    }  
 }
 
 int main()
@@ -53,12 +75,13 @@ int main()
     {
         visited[i] = 0;
         nodes[i]._num = i + 1;
-        sort(nodes[i]._connected.begin(), nodes[i]._connected.end());
+        sort(nodes[i]._connected.begin(), nodes[i]._connected.end());    
     }
 
     DFS(visited, &nodes[V - 1]);
     printf("\n");
-    BFS(&nodes[V - 1]);
+    for (int i = 0; i < N; i++) visited[i] = 0;
+    BFS(visited, &nodes[V - 1]);
   
     return 0;
 }
