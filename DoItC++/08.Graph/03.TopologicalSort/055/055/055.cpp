@@ -8,8 +8,6 @@ struct Dest;
 struct City
 {
     int ref = 0;
-    int max = 1;
-    int total = 0;
     vector<Dest*> dest;
 };
 
@@ -54,7 +52,7 @@ int main()
         {
             Dest* d = *it;
             
-
+            // TO-DO
 
             if (--(d->city->ref) == 0)
                 Q.push(d->city);
@@ -62,4 +60,3 @@ int main()
     }
 
 }
-
